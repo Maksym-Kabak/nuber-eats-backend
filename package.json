@@ -41,7 +41,8 @@
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.6.6"
+    "rxjs": "^6.6.6",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@apollo/federation": "^0.25.1",
