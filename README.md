@@ -18,5 +18,3 @@ The backend of Number Eats Clone
  - See Profile
  - Edit Profile
  - Verify Email
- 
- lesson 38
