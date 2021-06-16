@@ -9,13 +9,14 @@ export class MailModule {
   static forRoot(options: MailModuleOption): DynamicModule {
     return {
       module: MailModule,
-      providers: [{
-        provide: CONFIG_OPTIONS,
-        useValue: options
-      },
-        MailService
+      providers: [
+        {
+          provide: CONFIG_OPTIONS,
+          useValue: options,
+        },
+        MailService,
       ],
-      exports: [MailService]
+      exports: [MailService],
     };
   }
 }

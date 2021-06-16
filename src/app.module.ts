@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import * as Joi from 'joi';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -27,7 +32,7 @@ import { MailModule } from './mail/mail.module';
         MAILGUN_API_KEY: Joi.string().required(),
         MAILGUN_DOMAIN_NAME: Joi.string().required(),
         MAILGUN_FROM_EMAIL: Joi.string().required(),
-      })
+      }),
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -38,30 +43,30 @@ import { MailModule } from './mail/mail.module';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification]
+      entities: [User, Verification],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      context: ({ req }) => ({ user: req['user'] })
+      context: ({ req }) => ({ user: req['user'] }),
     }),
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY
+      privateKey: process.env.PRIVATE_KEY,
     }),
     UsersModule,
     MailModule.forRoot({
       apiKey: process.env.MAILGUN_API_KEY,
-      domain:process.env.MAILGUN_DOMAIN_NAME,
-      fromEmail: process.env.MAILGUN_FROM_EMAIL
-    })
+      domain: process.env.MAILGUN_DOMAIN_NAME,
+      fromEmail: process.env.MAILGUN_FROM_EMAIL,
+    }),
   ],
   controllers: [],
-  providers: []
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtMiddleware).forRoutes({
       path: '/graphql',
-      method: RequestMethod.POST
+      method: RequestMethod.POST,
     });
   }
 }

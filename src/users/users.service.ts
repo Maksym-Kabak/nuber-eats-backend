@@ -18,28 +18,41 @@ export class UsersService {
     @InjectRepository(Verification)
     private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService
-  ) {
-  }
+    private readonly mailService: MailService,
+  ) {}
 
-  async createAccount({ email, password, role }: CreateAccountInput): Promise<{ ok: boolean, error?: string }> {
+  async createAccount({
+    email,
+    password,
+    role,
+  }: CreateAccountInput): Promise<{ ok: boolean; error?: string }> {
     try {
       const exist = await this.users.findOne({ email });
       if (exist) {
         return { ok: false, error: 'There is a user with that email already' };
       }
-      const user = await this.users.save(this.users.create({ email, password, role }));
-      const verification = await this.verifications.save(this.verifications.create({ user }));
+      const user = await this.users.save(
+        this.users.create({ email, password, role }),
+      );
+      const verification = await this.verifications.save(
+        this.verifications.create({ user }),
+      );
       this.mailService.sendVerificationEmail(user.email, verification.code);
       return { ok: true };
     } catch (error) {
-      return { ok: false, error: 'Couldn\'t create account' };
+      return { ok: false, error: "Couldn't create account" };
     }
   }
 
-  async login({ email, password }: LoginInput): Promise<{ ok: boolean, error?: string, token?: string }> {
+  async login({
+    email,
+    password,
+  }: LoginInput): Promise<{ ok: boolean; error?: string; token?: string }> {
     try {
-      const user = await this.users.findOne({ email }, { select: ['id', 'password'] });
+      const user = await this.users.findOne(
+        { email },
+        { select: ['id', 'password'] },
+      );
       if (!user) {
         return { ok: false, error: 'User not found' };
       }
@@ -50,7 +63,7 @@ export class UsersService {
       const token = this.jwtService.sign(user.id);
       return { ok: true, token };
     } catch (error) {
-      return { ok: false, error: 'Can\'t log user in' };
+      return { ok: false, error: "Can't log user in" };
     }
   }
 
@@ -63,13 +76,18 @@ export class UsersService {
     }
   }
 
-  async editProfile(userId: number, { email, password }: EditProfileInput): Promise<EditProfileOutput> {
+  async editProfile(
+    userId: number,
+    { email, password }: EditProfileInput,
+  ): Promise<EditProfileOutput> {
     try {
       const user = await this.users.findOne(userId);
       if (email) {
         user.email = email;
         user.verified = false;
-        const verification = await this.verifications.save(this.verifications.create({ user }));
+        const verification = await this.verifications.save(
+          this.verifications.create({ user }),
+        );
         this.mailService.sendVerificationEmail(user.email, verification.code);
       }
       if (password) {
@@ -80,12 +98,14 @@ export class UsersService {
     } catch (error) {
       return { ok: false, error: 'Could not update profile' };
     }
-
   }
 
   async verifyEmail(code: string): Promise<VerifyEmailOutput> {
     try {
-      const verification = await this.verifications.findOne({ code }, { relations: ['user'] });
+      const verification = await this.verifications.findOne(
+        { code },
+        { relations: ['user'] },
+      );
       if (verification) {
         verification.user.verified = true;
         await this.users.save(verification.user);
