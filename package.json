@@ -100,7 +100,8 @@
       ".guard.ts",
       ".dto.ts",
       ".middleware.ts",
-      ".resolver.ts"
+      ".resolver.ts",
+      "main.ts"
     ]
   }
 }
