@@ -19,17 +19,18 @@ export class UsersService {
     private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
-  ) {}
+  ) {
+  }
 
   async createAccount({
-    email,
-    password,
-    role,
-  }: CreateAccountInput): Promise<{ ok: boolean; error?: string }> {
+                        email,
+                        password,
+                        role,
+                      }: CreateAccountInput): Promise<{ ok: boolean; error?: string }> {
     try {
       const exist = await this.users.findOne({ email });
       if (exist) {
-        return { ok: false, error: 'There is a user with that email already' };
+        return { ok:false, error:'There is a user with that email already' };
       }
       const user = await this.users.save(
         this.users.create({ email, password, role }),
@@ -38,41 +39,41 @@ export class UsersService {
         this.verifications.create({ user }),
       );
       this.mailService.sendVerificationEmail(user.email, verification.code);
-      return { ok: true };
+      return { ok:true };
     } catch (error) {
-      return { ok: false, error: "Couldn't create account" };
+      return { ok:false, error:'Couldn\'t create account' };
     }
   }
 
   async login({
-    email,
-    password,
-  }: LoginInput): Promise<{ ok: boolean; error?: string; token?: string }> {
+                email,
+                password,
+              }: LoginInput): Promise<{ ok: boolean; error?: string; token?: string }> {
     try {
       const user = await this.users.findOne(
         { email },
-        { select: ['id', 'password'] },
+        { select:['id', 'password'] },
       );
       if (!user) {
-        return { ok: false, error: 'User not found' };
+        return { ok:false, error:'User not found' };
       }
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) {
-        return { ok: false, error: 'Wrong password' };
+        return { ok:false, error:'Wrong password' };
       }
       const token = this.jwtService.sign(user.id);
-      return { ok: true, token };
+      return { ok:true, token };
     } catch (error) {
-      return { ok: false, error: "Can't log user in" };
+      return { ok:false, error:'Can\'t log user in' };
     }
   }
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
       const user = await this.users.findOneOrFail({ id });
-      return { ok: true, user };
+      return { ok:true, user };
     } catch (error) {
-      return { ok: false, error: 'User Not Found' };
+      return { ok:false, error:'User Not Found' };
     }
   }
 
@@ -85,6 +86,7 @@ export class UsersService {
       if (email) {
         user.email = email;
         user.verified = false;
+        await this.verifications.delete({ user:{ id:user.id } });
         const verification = await this.verifications.save(
           this.verifications.create({ user }),
         );
@@ -94,9 +96,9 @@ export class UsersService {
         user.password = password;
       }
       await this.users.save(user);
-      return { ok: true };
+      return { ok:true };
     } catch (error) {
-      return { ok: false, error: 'Could not update profile' };
+      return { ok:false, error:'Could not update profile' };
     }
   }
 
@@ -104,17 +106,17 @@ export class UsersService {
     try {
       const verification = await this.verifications.findOne(
         { code },
-        { relations: ['user'] },
+        { relations:['user'] },
       );
       if (verification) {
         verification.user.verified = true;
         await this.users.save(verification.user);
         await this.verifications.delete(verification.id);
-        return { ok: true };
+        return { ok:true };
       }
-      return { ok: false, error: 'Verification not found.' };
+      return { ok:false, error:'Verification not found.' };
     } catch (error) {
-      return { ok: false, error: 'Could not verify email' };
+      return { ok:false, error:'Could not verify email' };
     }
   }
 }
